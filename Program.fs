@@ -2,4 +2,4 @@
 
 open BattleSoup.Window
 
-(Window ()).Run ()
+(new Window ()).Run ()

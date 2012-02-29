@@ -46,6 +46,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Geometry.fs" />
+    <Compile Include="World.fs" />
+    <Compile Include="Render.fs" />
     <Compile Include="Window.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
