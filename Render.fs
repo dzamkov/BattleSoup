@@ -4,6 +4,7 @@ open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
 open System.Drawing
+open System.Drawing.Drawing2D
 open System.Drawing.Imaging
 open BattleSoup.Geometry
 
@@ -35,6 +36,8 @@ type Texture (id : int) =
     static member Create (width : int, height : int, draw) =
         use bitmap = new Bitmap (width, height)
         use graphics = Graphics.FromImage bitmap
+        graphics.CompositingQuality <- CompositingQuality.HighQuality
+        graphics.SmoothingMode <- SmoothingMode.HighQuality
         draw graphics
         bitmap.Save "test.png"
         Texture.Create bitmap

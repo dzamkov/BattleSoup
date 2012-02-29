@@ -13,27 +13,43 @@ type TimeDelta = float
 
 /// A circular object in the game world that participates in physical interactions and collides and links with
 /// other atoms.
-type Atom = {
-        
-    /// The position of the atom in the game world.
-    mutable Position : Point
+type Atom (position : Point, radius : float, mass : float) =
+    let mutable position = position
+    let mutable velocity = Vector (0.0, 0.0)
+    let mutable angle = 0.0
+    let mutable rotation = 0.0
+    let mutable radius = radius
+    let mutable mass = mass
 
-    /// The velocity of the atom, in units per second.
-    mutable Velocity : Vector
+    /// Gets or sets the position of this atom.
+    member this.Position
+        with get () = position
+        and set value = position <- value
 
-    /// The angle of the atom, in radians.
-    mutable Angle : float
+    /// Gets or sets the velocity of this atom.
+    member this.Velocity
+        with get () = velocity
+        and set value = velocity <- value
 
-    /// The rotation of the atom, in radians per second.
-    mutable Rotation : float
+    /// Gets or sets the angle of the atom, in radians.
+    member this.Angle
+        with get () = angle
+        and set value = angle <- value
 
-    /// The radius of the atom.
-    Radius : float
+    /// Gets or sets the rotation of the atom, in radians per second.
+    member this.Rotation
+        with get () = rotation
+        and set value = rotation <- value
 
-    /// The mass of the atom.
-    Mass : float
+    /// Gets or sets the radius of the atom.
+    member this.Radius
+        with get () = radius
+        and set value = radius <- value
 
-    }
+    /// Gets or sets the mass of the atom.
+    member this.Mass
+        with get () = mass
+        and set value = mass <- value
 
 /// A game world that includes physical and visual content.
 type World () =
@@ -62,10 +78,32 @@ type World () =
     /// Updates the state of this world by the given amount of time.
     member this.Update (time : TimeDelta) =
 
-        // Update atoms.
+        // Update individual atoms.
         for atom in atoms do
             let drag = drag * atom.Radius * atom.Velocity.Length * time / atom.Mass
             atom.Position <- atom.Position + atom.Velocity * time
             atom.Velocity <- atom.Velocity * (1.0 - drag)
             atom.Angle <- atom.Angle + atom.Rotation * time
             atom.Rotation <- atom.Rotation * (rotationDamping ** time)
+
+        // Collision handling
+        for a in atoms do
+            for b in atoms do
+                if a <> b then
+                    let difference = b.Position - a.Position
+                    let distance = difference.Length
+                    let penetration = a.Radius + b.Radius - distance
+                    if penetration > 0.0 then
+                        let normal = difference * (1.0 / distance)
+                        let ima = 1.0 / a.Mass
+                        let imb = 1.0 / b.Mass
+                        let seperation = normal * (penetration / (ima + imb))
+                        a.Position <- a.Position - seperation * ima
+                        b.Position <- b.Position + seperation * imb
+                        let impact = (a.Velocity - b.Velocity) * normal
+                        if impact > 0.0 then
+                            let cor = 0.5
+                            let j = (1.0 + cor) * impact / (ima + imb)
+                            let impulse = normal * j
+                            a.Velocity <- a.Velocity - impulse * ima
+                            b.Velocity <- b.Velocity + impulse * imb

@@ -18,15 +18,9 @@ type Window () =
     override this.OnLoad args =
         for i = 0 to 9 do
             for j = 0 to 9 do
-                world.Spawn {
-                        Position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)
-                        Velocity = Vector ((float i - 4.5) * -2.5, (float j - 4.5) * -2.5)
-                        Angle = 0.0
-                        Rotation = 0.0
-                        Mass = 1.0
-                        Radius = 0.5
-                    }
-
+                let position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)
+                let velocity = Vector ((float i - 4.5) * -2.5, (float j - 4.5) * -2.5)
+                world.Spawn (Atom (position, 0.5, float i * 0.1 + 1.0, Velocity = velocity))
         this.MakeCurrent ()
 
         GL.Enable EnableCap.Texture2D
@@ -69,4 +63,3 @@ type Window () =
 
     override this.OnUpdateFrame args =
         world.Update args.Time
-        view <- view * Transform.Rotate (args.Time * 0.1)
