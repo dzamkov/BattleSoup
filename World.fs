@@ -38,7 +38,7 @@ type Atom = {
 /// A game world that includes physical and visual content.
 type World () =
     let atoms = List<Atom> ()
-    let mutable drag = 10.0
+    let mutable drag = 1.0
     let mutable rotationDamping = 0.9
 
     /// Gets the atoms in this world.
@@ -64,7 +64,7 @@ type World () =
 
         // Update atoms.
         for atom in atoms do
-            let drag = drag * atom.Radius * atom.Velocity.Length / atom.Mass
+            let drag = drag * atom.Radius * atom.Velocity.Length * time / atom.Mass
             atom.Position <- atom.Position + atom.Velocity * time
             atom.Velocity <- atom.Velocity * (1.0 - drag)
             atom.Angle <- atom.Angle + atom.Rotation * time

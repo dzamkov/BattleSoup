@@ -19,7 +19,7 @@ type Window () =
             for j = 0 to 9 do
                 world.Spawn {
                         Position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)
-                        Velocity = Vector ((float i - 4.5) * -0.0, (float j - 4.5) * -0.0)
+                        Velocity = Vector ((float i - 4.5) * -2.5, (float j - 4.5) * -2.5)
                         Angle = 0.0
                         Rotation = 0.0
                         Mass = 1.0
@@ -31,7 +31,7 @@ type Window () =
         GL.Clear ClearBufferMask.ColorBufferBit
 
         GL.LoadIdentity ()
-        GL.MultMatrix (view * Transform.Rotate theta).Inverse
+        GL.MultMatrix (view * Transform.Rotate (theta * 0.1)).Inverse
         GL.Begin BeginMode.Quads
         for atom in world.Atoms do
             let position = atom.Position
