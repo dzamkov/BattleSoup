@@ -1,25 +1,17 @@
 ﻿module BattleSoup.World
 
-
 open System
 open System.Collections.Generic
+open BattleSoup.Util
 open BattleSoup.Geometry
-
-/// An absolute time in seconds.
-type Time = float
-
-/// A difference of times in seconds.
-type TimeDelta = float
 
 /// A circular object in the game world that participates in physical interactions and collides and links with
 /// other atoms.
-type Atom (position : Point, radius : float, mass : float) =
+type Atom (position : Point, velocity : Vector, radius : float, mass : float) =
     let mutable position = position
-    let mutable velocity = Vector (0.0, 0.0)
-    let mutable angle = 0.0
-    let mutable rotation = 0.0
-    let mutable radius = radius
-    let mutable mass = mass
+    let mutable velocity = velocity
+    let radius = radius
+    let mass = mass
 
     /// Gets or sets the position of this atom.
     member this.Position
@@ -31,31 +23,16 @@ type Atom (position : Point, radius : float, mass : float) =
         with get () = velocity
         and set value = velocity <- value
 
-    /// Gets or sets the angle of the atom, in radians.
-    member this.Angle
-        with get () = angle
-        and set value = angle <- value
+    /// Gets the radius of the atom.
+    member this.Radius = radius
 
-    /// Gets or sets the rotation of the atom, in radians per second.
-    member this.Rotation
-        with get () = rotation
-        and set value = rotation <- value
-
-    /// Gets or sets the radius of the atom.
-    member this.Radius
-        with get () = radius
-        and set value = radius <- value
-
-    /// Gets or sets the mass of the atom.
-    member this.Mass
-        with get () = mass
-        and set value = mass <- value
+    /// Gets the mass of the atom.
+    member this.Mass = mass
 
 /// A game world that includes physical and visual content.
 type World () =
     let atoms = List<Atom> ()
     let mutable drag = 1.0
-    let mutable rotationDamping = 0.9
 
     /// Gets the atoms in this world.
     member this.Atoms = atoms :> seq<Atom>
@@ -69,12 +46,6 @@ type World () =
         with get () = drag
         and set value = drag <- value
 
-    /// Gets or sets the rotation damping factor for this world. This is the relative amount of rotational velocity
-    /// that persists each second. 
-    member this.RotationDamping
-        with get () = rotationDamping
-        and set value = rotationDamping <- value
-
     /// Updates the state of this world by the given amount of time.
     member this.Update (time : TimeDelta) =
 
@@ -83,8 +54,6 @@ type World () =
             let drag = drag * atom.Radius * atom.Velocity.Length * time / atom.Mass
             atom.Position <- atom.Position + atom.Velocity * time
             atom.Velocity <- atom.Velocity * (1.0 - drag)
-            atom.Angle <- atom.Angle + atom.Rotation * time
-            atom.Rotation <- atom.Rotation * (rotationDamping ** time)
 
         // Collision handling
         for a in atoms do

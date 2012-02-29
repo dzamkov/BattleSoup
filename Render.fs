@@ -80,7 +80,7 @@ type GL with
         let d = transform.Y.Y
         let e = transform.Offset.X
         let f = transform.Offset.Y
-        let mutable mat = Matrix4d (a, b, 0.0, e, c, d, 0.0, f, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+        let mutable mat = Matrix4d (a, b, 0.0, 0.0, c, d, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, e, f, 0.0, 1.0)
         GL.MultMatrix &mat
 
 /// Normalizes the given view transform so that there is no stretching or skewing when applied to a
