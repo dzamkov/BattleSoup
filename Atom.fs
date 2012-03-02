@@ -1,17 +1,25 @@
-﻿module BattleSoup.World
+﻿module BattleSoup.Atom
 
 open System
 open System.Collections.Generic
 open BattleSoup.Util
 open BattleSoup.Geometry
 
+/// Defines the immutable behavior of a certain type of atom.
+type AtomType (radius : float, mass : float) =
+    
+    /// Gets the normal radius of an atom of this type.
+    member this.Radius = radius
+
+    /// Gets the normal mass of an atom of this type.
+    member this.Mass = mass
+
 /// A circular object in the game world that participates in physical interactions and collides and links with
 /// other atoms.
-type Atom (position : Point, velocity : Vector, radius : float, mass : float) =
+type Atom (position : Point, velocity : Vector, atomType : AtomType) =
     let mutable position = position
     let mutable velocity = velocity
-    let radius = radius
-    let mass = mass
+    let mutable atomType = atomType
 
     /// Gets or sets the position of this atom.
     member this.Position
@@ -24,12 +32,17 @@ type Atom (position : Point, velocity : Vector, radius : float, mass : float) =
         and set value = velocity <- value
 
     /// Gets the radius of the atom.
-    member this.Radius = radius
+    member this.Radius = atomType.Radius
 
     /// Gets the mass of the atom.
-    member this.Mass = mass
+    member this.Mass = atomType.Mass
 
-/// A game world that includes physical and visual content.
+    /// Gets or sets the type of this atom.
+    member this.Type
+        with get () = atomType
+        and set value = atomType <- value
+
+/// A game world that contains physical content.
 type World () =
     let atoms = List<Atom> ()
     let mutable drag = 1.0

@@ -48,9 +48,10 @@
   <ItemGroup>
     <Compile Include="Util.fs" />
     <Compile Include="Geometry.fs" />
-    <Compile Include="World.fs" />
-    <Compile Include="Camera.fs" />
     <Compile Include="Render.fs" />
+    <Compile Include="Atom.fs" />
+    <Compile Include="Element.fs" />
+    <Compile Include="Camera.fs" />
     <Compile Include="Window.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

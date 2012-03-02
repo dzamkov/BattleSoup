@@ -4,10 +4,11 @@ open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
 open System.Drawing
-open BattleSoup.World
+open BattleSoup.Atom
 open BattleSoup.Geometry
 open BattleSoup.Camera
 open BattleSoup.Render
+open BattleSoup.Element
 
 /// Main program window.
 type Window () =
@@ -29,7 +30,7 @@ type Window () =
             for j = 0 to 9 do
                 let position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)
                 let velocity = Vector ((float i - 4.5) * -2.5, (float j - 4.5) * -2.5)
-                world.Spawn (Atom (position, velocity, 0.5, float i * 0.1 + 1.0))
+                world.Spawn (Atom (position, velocity, hydrogen))
         this.MakeCurrent ()
         this.VSync <- VSyncMode.On
 
@@ -41,12 +42,7 @@ type Window () =
         GL.Enable EnableCap.CullFace
         GL.Enable EnableCap.Blend
         GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha)
-        let draw width height (g : Graphics) =
-            g.Clear (Color.Transparent)
-            g.FillEllipse (Brushes.White, 0, 0, width, height)
-        texture <- Texture.Create (256, 256, draw 256 256)
-        Texture.SetFilterMode (TextureTarget.Texture2D, TextureMinFilter.Linear, TextureMagFilter.Linear)
-
+        texture <- createTexture 256 hydrogen
 
     override this.OnRenderFrame args =
         GL.Clear ClearBufferMask.ColorBufferBit
