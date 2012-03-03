@@ -1,12 +1,14 @@
 ﻿module BattleSoup.Sprite
 
-open System
 open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
+open System
+open System.Collections.Generic
 open System.Drawing
 open System.Drawing.Drawing2D
 open BattleSoup.Geometry
+open BattleSoup.Drawing
 open BattleSoup.Render
 
 /// A renderable fragment from a texture with included positioning and sizing information.
@@ -29,8 +31,9 @@ type [<ReferenceEquality>] SpriteSource =
 /// Contains information and methods for creating sprites from sprite sources.
 type [<AbstractClass>] SpriteFactory () =
 
-    /// Creates a single independent sprite from a sprite source.
-    abstract Create : SpriteSource -> Sprite
+    /// Creates a single independent sprite from a sprite source and returns a function to
+    /// later delete it by removing its associated texture data.
+    abstract Create : SpriteSource -> (Sprite * (unit -> unit))
 
 /// Gets the graphics transformation matrix needed in order to transform drawings from the
 /// destination rectangle to the given source rectangle on a bitmap of the given size.
@@ -67,5 +70,47 @@ type SimpleSpriteFactory (padding : float, size : int) =
             let texture =Texture.Create b
             Texture.CreateMipmap GenerateMipmapTarget.Texture2D
             Texture.SetFilterMode (TextureTarget.Texture2D, TextureMinFilter.LinearMipmapLinear, TextureMagFilter.Linear)
-            Sprite (texture, source, destination)
+            Sprite (texture, source, destination), texture.Delete
         | _ -> NotImplementedException () |> raise
+
+/// A sprite source with an associated sprite created using a statically-defined sprite factory.
+type SpriteReference (source : SpriteSource) =
+    let mutable info = None
+    static let all = List<SpriteReference> ()
+    static let mutable factory = SimpleSpriteFactory (0.1, 256)
+
+    /// Gets or sets the sprite factory used with sprite references.
+    static member Factory
+        with get () = factory
+        and set value = 
+            for ref in all do ref.Invalidate ()
+            factory <- value
+
+    /// Gets a collection of all defined sprite references.
+    static member All = all :> seq<SpriteReference>
+
+    /// Gets the source sprite for this sprite reference.
+    member this.Source = source
+
+    /// Gets the sprite for this reference, creating it if needed.
+    member this.Sprite =
+        match info with
+        | Some (sprite, _) -> sprite
+        | None ->
+            let sprite, delete = factory.Create source
+            info <- Some (sprite, delete)
+            sprite
+
+    /// Forces a new sprite to be created for this sprite reference the next time
+    /// it is used.
+    member this.Invalidate () = 
+        match info with
+        | Some (_, delete) ->
+            delete ()
+            info <- None
+        | None -> ()
+
+    /// Deletes this sprite reference.
+    member this.Delete () =
+        this.Invalidate ()
+        all.Remove this

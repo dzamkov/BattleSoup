@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Util.fs" />
     <Compile Include="Geometry.fs" />
+    <Compile Include="Drawing.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="Sprite.fs" />
     <Compile Include="Atom.fs" />
