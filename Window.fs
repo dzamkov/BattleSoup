@@ -28,7 +28,7 @@ type Window () =
 
     override this.OnLoad args =
         let random = Random ()
-        let randomElement () = Seq.nth (random.Next 7) [hydrogen; oxygen; carbon; nitrogen; sulfur; copper; iron]
+        let randomElement () = Seq.nth (random.Next 5) [hydrogen; oxygen; carbon; nitrogen; iron]
         for i = 0 to 9 do
             for j = 0 to 9 do
                 let position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)

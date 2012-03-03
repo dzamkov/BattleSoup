@@ -64,9 +64,11 @@ type World () =
 
         // Update individual atoms.
         for atom in atoms do
+            let speed = atom.Velocity.Length
+            let dragCoefficient = drag * atom.Radius / atom.Mass
             let drag = drag * atom.Radius * atom.Velocity.Length * time / atom.Mass
             atom.Position <- atom.Position + atom.Velocity * time
-            atom.Velocity <- atom.Velocity * (1.0 - drag)
+            atom.Velocity <- atom.Velocity * ((sqrt (1.0 + 4.0 * speed * dragCoefficient * time) - 1.0) / (2.0 * speed * dragCoefficient * time))
 
         // Collision handling
         for a in atoms do

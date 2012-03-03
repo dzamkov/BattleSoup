@@ -55,22 +55,25 @@ type ElementType (name : string, symbol : string, mass : float, color : Color) =
     member this.Body = body
 
 /// The element type for hydrogen.
-let hydrogen = ElementType ("Hydrogen", "H", 0.1, Color (0.0, 0.0, 1.0))
+let hydrogen = ElementType ("Hydrogen", "H", 0.6, Color (0.0, 0.0, 1.0))
 
 /// The element type for carbon.
-let carbon = ElementType ("Carbon", "C", 0.3, Color (1.0, 0.0, 0.0))
+let carbon = ElementType ("Carbon", "C", 0.8, Color (1.0, 0.0, 0.0))
 
 /// The element type for nitrogen.
-let nitrogen = ElementType ("Nitrogen", "N", 0.2, Color (0.0, 1.0, 0.0))
+let nitrogen = ElementType ("Nitrogen", "N", 0.7, Color (0.0, 1.0, 0.0))
 
 /// The element type for oxygen.
-let oxygen = ElementType ("Oxygen", "O", 0.4, Color (1.0, 1.0, 1.0))
+let oxygen = ElementType ("Oxygen", "O", 1.0, Color (1.0, 1.0, 1.0))
 
 /// The element type for sulfur.
-let sulfur = ElementType ("Sulfur", "S", 0.8, Color (1.0, 1.0, 0.0))
-
-/// The element type for copper.
-let copper = ElementType ("Copper", "Cu", 1.0, Color (1.0, 0.5, 0.0))
+let sulfur = ElementType ("Sulfur", "S", 1.2, Color (1.0, 1.0, 0.0))
 
 /// The element type for iron.
-let iron = ElementType ("Iron", "Fe", 1.4, Color (0.5, 0.5, 0.5))
+let iron = ElementType ("Iron", "Fe", 1.6, Color (0.5, 0.5, 0.5))
+
+/// The element type for copper.
+let copper = ElementType ("Copper", "Cu", 1.4, Color (1.0, 0.5, 0.0))
+
+/// The element type for krypton.
+let krypton = ElementType ("Krypton", "Kr", 1.2, Color (0.25, 0.5, 1.0))
