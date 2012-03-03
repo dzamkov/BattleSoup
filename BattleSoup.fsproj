@@ -49,6 +49,7 @@
     <Compile Include="Util.fs" />
     <Compile Include="Geometry.fs" />
     <Compile Include="Render.fs" />
+    <Compile Include="Sprite.fs" />
     <Compile Include="Atom.fs" />
     <Compile Include="Element.fs" />
     <Compile Include="Camera.fs" />

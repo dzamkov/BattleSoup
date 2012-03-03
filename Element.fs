@@ -31,7 +31,7 @@ let carbon = ElementType ("Carbon", "C", 0.3, Color (1.0, 0.0, 0.0))
 let nitrogen = ElementType ("Nitrogen", "N", 0.2, Color (0.0, 1.0, 0.0))
 
 /// The element type for oxygen.
-let oxygen = ElementType ("Oxygen", "O", 0.4, Color (0.8, 0.8, 0.8))
+let oxygen = ElementType ("Oxygen", "O", 0.4, Color (1.0, 1.0, 1.0))
 
 /// The radius of an element atom.
 let radius = 0.5
@@ -45,22 +45,18 @@ let borderWidth = 0.1
 /// The font for the symbol in an element.
 let elementFont = systemFont "Verdana" |? genericFont
 
-/// Creates a texture for the given element type.
-let createTexture (size : int) (element : ElementType) =
+let draw (element : ElementType) (g : Graphics) =
     let baseColor = systemColor element.Color
     let borderColor = systemColor (Color (1.0, 1.0, 1.0))
     let textColor = systemColor (Color (1.0, 1.0, 1.0))
-    let diameter = float32 size
-    let scale = diameter / (float32 radius * 2.0f)
-    let borderWidth = float32 borderWidth * scale
-    let hBorderWidth = borderWidth * 0.5f
-    let draw (g : Graphics) =
-        use p = new Pen (borderColor, float32 borderWidth)
-        use b = new SolidBrush (baseColor)
-        use t = new SolidBrush (textColor)
-        use f = new Font (elementFont, diameter * 0.3f, FontStyle.Bold)
-        let stringSize = g.MeasureString (element.Symbol, f)
-        g.FillEllipse (b, 0.0f, 0.0f, diameter, diameter)
-        g.DrawEllipse (p, hBorderWidth, hBorderWidth, diameter - borderWidth, diameter - borderWidth)
-        g.DrawString (element.Symbol, f, t, diameter * 0.5f - stringSize.Width * 0.5f, diameter * 0.5f- stringSize.Height * 0.5f)
-    Texture.Create (size, size, draw)
+    let radius = float32 elementRadius
+    let diameter = radius * 2.0f
+    let borderWidth = float32 borderWidth
+    use p = new Pen (borderColor, float32 borderWidth)
+    use b = new SolidBrush (baseColor)
+    use t = new SolidBrush (textColor)
+    use f = new Font (elementFont, diameter * 0.3f, FontStyle.Bold)
+    let stringSize = g.MeasureString (element.Symbol, f)
+    g.FillEllipse (b, -radius, -radius, diameter, diameter)
+    g.DrawEllipse (p, -radius + borderWidth * 0.5f, -radius + borderWidth * 0.5f, diameter - borderWidth, diameter - borderWidth)
+    g.DrawString (element.Symbol, f, t, -stringSize.Width * 0.5f, -stringSize.Height * 0.5f)

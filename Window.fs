@@ -9,13 +9,14 @@ open BattleSoup.Geometry
 open BattleSoup.Camera
 open BattleSoup.Render
 open BattleSoup.Element
+open BattleSoup.Sprite
 
 /// Main program window.
 type Window () =
     inherit GameWindow (640, 480, GraphicsMode.Default, "BattleSoup")
     let world = World ()
     let camera = Camera (Point (0.0, 0.0), -2.0)
-    let mutable texture = Texture.Null
+    let mutable sprite = Unchecked.defaultof<Sprite>
 
     /// Gets the current transform from viewspace to worldspace coordinates for this window.
     member this.ViewTransform = normalizeView (float this.Width / float this.Height) camera.Transform
@@ -42,26 +43,29 @@ type Window () =
         GL.Enable EnableCap.CullFace
         GL.Enable EnableCap.Blend
         GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha)
-        texture <- createTexture 256 hydrogen
+        sprite <- (SimpleSpriteFactory (0.1, 256)).Create (Draw (Rectangle (-elementRadius, -elementRadius, elementRadius, elementRadius), draw nitrogen))
 
     override this.OnRenderFrame args =
         GL.Clear ClearBufferMask.ColorBufferBit
 
-        GL.BindTexture2D texture
+        GL.BindTexture2D sprite.Texture
         GL.LoadIdentity ()
         GL.MultMatrix this.ViewTransform.Inverse
         GL.Begin BeginMode.Quads
         for atom in world.Atoms do
             let position = atom.Position
             let radius = atom.Radius
-            GL.TexCoord2 (0.0, 0.0)
-            GL.Vertex2 (position.X - radius, position.Y - radius)
-            GL.TexCoord2 (1.0, 0.0)
-            GL.Vertex2 (position.X + radius, position.Y - radius)
-            GL.TexCoord2 (1.0, 1.0)
-            GL.Vertex2 (position.X + radius, position.Y + radius)
-            GL.TexCoord2 (0.0, 1.0)
-            GL.Vertex2 (position.X - radius, position.Y + radius)
+            let source = sprite.Source
+            let dest = sprite.Destination
+            let trans = Transform.Translate atom.Position
+            GL.TexCoord2 (source.Min.X, source.Min.Y)
+            GL.Vertex2 (trans * Point (dest.Min.X, dest.Max.Y))
+            GL.TexCoord2 (source.Min.X, source.Max.Y)
+            GL.Vertex2 (trans * Point (dest.Min.X, dest.Min.Y))
+            GL.TexCoord2 (source.Max.X, source.Max.Y)
+            GL.Vertex2 (trans * Point (dest.Max.X, dest.Min.Y))
+            GL.TexCoord2 (source.Max.X, source.Min.Y)
+            GL.Vertex2 (trans * Point (dest.Max.X, dest.Max.Y))
         GL.End ()
 
         this.SwapBuffers ()

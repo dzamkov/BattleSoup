@@ -1,11 +1,11 @@
 ﻿module BattleSoup.Render
 
-open OpenTK
-open OpenTK.Graphics
-open OpenTK.Graphics.OpenGL
 open System.Drawing
 open System.Drawing.Drawing2D
 open System.Drawing.Imaging
+open OpenTK
+open OpenTK.Graphics
+open OpenTK.Graphics.OpenGL
 open BattleSoup.Geometry
 
 /// Represents a color (with no transparency information).
@@ -177,7 +177,7 @@ type Texture (id : int) =
         GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, int TextureEnvMode.Modulate);
         Texture (id)
 
-    /// Creates and binds a 2d texture for the given bitmap.
+    /// Creates and binds a 2d texture from the given BGRA32 bitmap.
     static member Create (bitmap : Bitmap) =
         let texture = Texture.Create ()
         let width = bitmap.Width
@@ -188,6 +188,12 @@ type Texture (id : int) =
         bitmap.UnlockBits bd
         texture
 
+    /// Creates and binds a 2d texture from the given BGRA32 pixel data.
+    static member Create (width : int, height : int, data : byte[]) =
+        let texture = Texture.Create ()
+        GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, data)
+        texture
+
     /// Creates and binds a 2d texture using the given drawing function.
     static member Create (width : int, height : int, draw) =
         use bitmap = new Bitmap (width, height)
@@ -195,7 +201,6 @@ type Texture (id : int) =
         graphics.CompositingQuality <- CompositingQuality.HighQuality
         graphics.SmoothingMode <- SmoothingMode.HighQuality
         draw graphics
-        bitmap.Save "test.png"
         let tex = Texture.Create bitmap
         Texture.CreateMipmap (GenerateMipmapTarget.Texture2D)
         Texture.SetFilterMode (TextureTarget.Texture2D, TextureMinFilter.LinearMipmapLinear, TextureMagFilter.Linear)
