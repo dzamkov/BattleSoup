@@ -4,19 +4,24 @@ open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
 open System
+open System.Collections.Generic
 open System.Drawing
-open BattleSoup.Atom
 open BattleSoup.Geometry
 open BattleSoup.Camera
+open BattleSoup.Drawing
 open BattleSoup.Render
+open BattleSoup.Visual
+open BattleSoup.Atom
 open BattleSoup.Element
-open BattleSoup.Sprite
+open BattleSoup.Nucleus
+
 
 /// Main program window.
 type Window () =
     inherit GameWindow (640, 480, GraphicsMode.Default, "BattleSoup")
     let world = World ()
-    let camera = Camera (Point (0.0, 0.0), -2.0)
+    let camera = Camera (Point (0.0, 0.0), -4.0)
+    let visuals = Dictionary<Atom, Visual> ()
 
     /// Gets the current transform from viewspace to worldspace coordinates for this window.
     member this.ViewTransform = normalizeView (float this.Width / float this.Height) camera.Transform
@@ -28,12 +33,13 @@ type Window () =
 
     override this.OnLoad args =
         let random = Random ()
-        let randomElement () = Seq.nth (random.Next 5) [hydrogen; oxygen; carbon; nitrogen; iron]
+        let randomElement () = Seq.nth (random.Next 4) [hydrogen; oxygen; carbon; nitrogen]
         for i = 0 to 9 do
             for j = 0 to 9 do
                 let position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)
                 let velocity = Vector ((float i - 4.5) * -2.5, (float j - 4.5) * -2.5)
                 world.Spawn (Atom (position, velocity, randomElement ()))
+        world.Spawn (Atom (Point (0.0, -30.0), Vector (0.0, 0.0), NucleusType 0))
         this.MakeCurrent ()
         this.VSync <- VSyncMode.On
 
@@ -48,32 +54,16 @@ type Window () =
 
     override this.OnRenderFrame args =
         GL.Clear ClearBufferMask.ColorBufferBit
-
         
-        GL.LoadIdentity ()
-        GL.MultMatrix this.ViewTransform.Inverse
-        
+        let context = Context this.ViewTransform.Inverse
         for atom in world.Atoms do
-            match atom.Type with
-            | :? ElementType as atomType ->
-                let sprite = atomType.Body.Sprite
-                GL.BindTexture2D sprite.Texture
-                let position = atom.Position
-                let radius = atom.Radius
-                let source = sprite.Source
-                let dest = sprite.Destination
-                let trans = Transform.Translate atom.Position
-                GL.Begin BeginMode.Quads
-                GL.TexCoord2 (source.Min.X, source.Min.Y)
-                GL.Vertex2 (trans * Point (dest.Min.X, dest.Max.Y))
-                GL.TexCoord2 (source.Min.X, source.Max.Y)
-                GL.Vertex2 (trans * Point (dest.Min.X, dest.Min.Y))
-                GL.TexCoord2 (source.Max.X, source.Max.Y)
-                GL.Vertex2 (trans * Point (dest.Max.X, dest.Min.Y))
-                GL.TexCoord2 (source.Max.X, source.Min.Y)
-                GL.Vertex2 (trans * Point (dest.Max.X, dest.Max.Y))
-                GL.End ()
-            | _ -> ()
+            let mutable visual = Unchecked.defaultof<Visual>
+            if visuals.TryGetValue (atom, &visual) then 
+                visual.Draw context
+            else 
+                let visual = atom.Type.GetVisual atom
+                visuals.[atom] <- visual
+                visual.Draw context
 
         this.SwapBuffers ()
 

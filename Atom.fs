@@ -4,9 +4,13 @@ open System
 open System.Collections.Generic
 open BattleSoup.Util
 open BattleSoup.Geometry
+open BattleSoup.Visual
 
 /// Defines the immutable behavior of a certain type of atom.
-type AtomType (radius : float, mass : float) =
+type [<AbstractClass>] AtomType (radius : float, mass : float, borderWidth : float) =
+
+    /// Creates a visual to draw an atom of this type.
+    abstract GetVisual : Atom -> Visual
     
     /// Gets the normal radius of an atom of this type.
     member this.Radius = radius
@@ -14,9 +18,13 @@ type AtomType (radius : float, mass : float) =
     /// Gets the normal mass of an atom of this type.
     member this.Mass = mass
 
+    /// Gets the border width for an atom of this type. Note that the atom border
+    /// is inside the atom.
+    member this.BorderWidth = borderWidth
+
 /// A circular object in the game world that participates in physical interactions and collides and links with
 /// other atoms.
-type Atom (position : Point, velocity : Vector, atomType : AtomType) =
+and Atom (position : Point, velocity : Vector, atomType : AtomType) =
     let mutable position = position
     let mutable velocity = velocity
     let mutable atomType = atomType
@@ -41,6 +49,19 @@ type Atom (position : Point, velocity : Vector, atomType : AtomType) =
     member this.Type
         with get () = atomType
         and set value = atomType <- value
+
+/// A visual that draws an inner visual centered on an atom in worldspace.
+type AtomFollowVisual (atom : Atom, inner : Visual) =
+    inherit Visual ()
+    let mutable inner = inner
+
+    override this.Draw context =
+        let transform = Transform.Translate atom.Position
+        inner.Draw (context.ApplyTransform transform)
+
+    override this.Update (time, visual) =
+        inner.Update (time, &inner)
+        if inner = Visual.Null then visual <- Visual.Null
 
 /// A game world that contains physical content.
 type World () =

@@ -51,8 +51,10 @@
     <Compile Include="Drawing.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="Sprite.fs" />
+    <Compile Include="Visual.fs" />
     <Compile Include="Atom.fs" />
     <Compile Include="Element.fs" />
+    <Compile Include="Nucleus.fs" />
     <Compile Include="Camera.fs" />
     <Compile Include="Window.fs" />
     <Compile Include="Program.fs" />

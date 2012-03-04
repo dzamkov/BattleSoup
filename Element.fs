@@ -5,6 +5,7 @@ open BattleSoup.Util
 open BattleSoup.Geometry
 open BattleSoup.Drawing
 open BattleSoup.Sprite
+open BattleSoup.Visual
 open BattleSoup.Atom
 
 /// The radius of an element atom.
@@ -24,7 +25,7 @@ let getDrawingColors (primary : Color) =
 
 /// A type of element.
 type ElementType (name : string, symbol : string, mass : float, color : Color) =
-    inherit AtomType (elementRadius, mass)
+    inherit AtomType (elementRadius, mass, borderWidth)
     let drawBody (g : Graphics) =
         let highlight, body = getDrawingColors color
         let highlight, body = systemColor highlight, systemColor body
@@ -40,7 +41,10 @@ type ElementType (name : string, symbol : string, mass : float, color : Color) =
         g.DrawEllipse (p, -radius + borderWidth * 0.5f, -radius + borderWidth * 0.5f, diameter - borderWidth, diameter - borderWidth)
         g.DrawString (symbol, f, t, -stringSize.Width * 0.5f, -stringSize.Height * 0.5f)
     let bodySource = Draw (Rectangle (-elementRadius, -elementRadius, elementRadius, elementRadius), drawBody)
-    let body = SpriteReference bodySource
+    let visual = SpriteVisual bodySource
+
+    override this.GetVisual atom =
+        AtomFollowVisual (atom, visual) :> Visual
 
     /// Gets the full name of this element type.
     member this.Name = name
@@ -50,9 +54,6 @@ type ElementType (name : string, symbol : string, mass : float, color : Color) =
 
     /// Gets the base color for this element type.
     member this.Color = color
-
-    /// Gets the sprite reference for the body of an atom of this type.
-    member this.Body = body
 
 /// The element type for hydrogen.
 let hydrogen = ElementType ("Hydrogen", "H", 0.6, Color (0.0, 0.0, 1.0))
