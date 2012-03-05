@@ -9,7 +9,7 @@ open BattleSoup.Visual
 open BattleSoup.Atom
 
 /// The radius of an element atom.
-let elementRadius = 0.5
+let radius = 0.5
 
 /// The border width of an element atom.
 let borderWidth = 0.1
@@ -25,11 +25,11 @@ let getDrawingColors (primary : Color) =
 
 /// A type of element.
 type ElementType (name : string, symbol : string, mass : float, color : Color) =
-    inherit AtomType (elementRadius, mass, borderWidth)
+    inherit AtomType (radius, mass, borderWidth)
     let drawBody (g : Graphics) =
         let highlight, body = getDrawingColors color
         let highlight, body = systemColor highlight, systemColor body
-        let radius = float32 elementRadius
+        let radius = float32 radius
         let diameter = radius * 2.0f
         let borderWidth = float32 borderWidth
         use p = new Pen (highlight, float32 borderWidth)
@@ -40,7 +40,7 @@ type ElementType (name : string, symbol : string, mass : float, color : Color) =
         g.FillEllipse (b, -radius, -radius, diameter, diameter)
         g.DrawEllipse (p, -radius + borderWidth * 0.5f, -radius + borderWidth * 0.5f, diameter - borderWidth, diameter - borderWidth)
         g.DrawString (symbol, f, t, -stringSize.Width * 0.5f, -stringSize.Height * 0.5f)
-    let bodySource = Draw (Rectangle (-elementRadius, -elementRadius, elementRadius, elementRadius), drawBody)
+    let bodySource = Draw (Rectangle (-radius, -radius, radius, radius), drawBody)
     let visual = SpriteVisual bodySource
 
     override this.GetVisual atom =

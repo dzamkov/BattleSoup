@@ -39,7 +39,7 @@ type Window () =
                 let position = Point ((float i - 4.5) * 2.0, (float j - 4.5) * 2.0)
                 let velocity = Vector ((float i - 4.5) * -2.5, (float j - 4.5) * -2.5)
                 world.Spawn (Atom (position, velocity, randomElement ()))
-        world.Spawn (Atom (Point (0.0, -30.0), Vector (0.0, 0.0), NucleusType 0))
+        world.Spawn (Atom (Point (-11.0, 0.0), Vector (0.0, 0.0), NucleusType 0))
         this.MakeCurrent ()
         this.VSync <- VSyncMode.On
 
