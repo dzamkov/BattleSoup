@@ -1,5 +1,7 @@
 ﻿namespace global
 
+open System.Drawing
+open System.Drawing.Drawing2D
 open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
@@ -60,8 +62,10 @@ module Visual =
         inherit Visual ()
         override x.Render (trans, this) =
             GL.Color4 (1.0, 1.0, 1.0, 1.0)
+            GL.LoadMatrix trans
+            GL.BindTexture2D texture
             GL.Begin BeginMode.Quads
-            sprite.Output trans
+            sprite.Output ()
             GL.End ()
 
         /// The texture for this sprite visual.
@@ -84,3 +88,26 @@ module Visual =
 
     /// Constructs a visual for a sprite.
     let sprite texture sprite = Sprite (texture, sprite) :> Visual
+
+    /// Constructs a visual for a static drawing created using System.Drawing.Graphics. The
+    /// drawing will be bounded in the given region in world space and have the specified
+    /// texture size. 
+    let drawing (draw : Graphics -> unit) (region : global.Rectangle) size =
+        use bitmap = new Bitmap (size, size)
+        use g = Graphics.FromImage bitmap
+        g.SmoothingMode <- SmoothingMode.HighQuality
+        g.CompositingQuality <- CompositingQuality.HighQuality
+        g.TextRenderingHint <- Text.TextRenderingHint.AntiAliasGridFit
+        g.Transform <-
+            let xScale = float32 size / float32 region.Width
+            let yScale = float32 size / float32 region.Height
+            let xOffset = -float32 region.Min.X * xScale
+            let yOffset = -float32 region.Min.Y * yScale
+            new Matrix (xScale, 0.0f, 0.0f, yScale, xOffset, yOffset)
+        draw g
+        let texture = Texture.Create bitmap
+        Texture.CreateMipmap GenerateMipmapTarget.Texture2D
+        Texture.SetFilterMode (TextureTarget.Texture2D, 
+            TextureMinFilter.LinearMipmapLinear, 
+            TextureMagFilter.Linear)
+        sprite texture (new global.Sprite (Rectangle.Unit, region))

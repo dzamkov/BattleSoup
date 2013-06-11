@@ -45,8 +45,17 @@ type [<Struct>] Rectangle =
     new (min, max) = { Min = min; Max = max }
     new (minX, minY, maxX, maxY) = { Min = Point (minX, minY); Max = Point (maxX, maxY) }
 
+    /// The unit square with its minimum point at (0, 0).
+    static member Unit = Rectangle (0.0, 0.0, 1.0, 1.0)
+
+    /// Gets the width of this rectangle.
+    member this.Width = this.Max.X - this.Min.X
+
+    /// Gets the height of this rectangle.
+    member this.Height = this.Max.Y - this.Min.Y
+
     /// Gets a vector representation of the size of this rectangle along both axies.
-    member this.Size = Vector (this.Max.X - this.Min.X, this.Max.Y - this.Min.Y)
+    member this.Size = Vector (this.Width, this.Height)
 
     /// Gets the total area of this rectangle.
     member this.Area = (this.Max.X - this.Min.X) * (this.Max.Y - this.Min.Y)
@@ -54,7 +63,7 @@ type [<Struct>] Rectangle =
     /// Gets the center of this rectangle.
     member this.Center = Point ((this.Min.X + this.Max.X) / 2.0, (this.Min.Y + this.Max.Y) / 2.0)
 
-    /// Determines wether this rectangle contains the given point.
+    /// Determines whether this rectangle contains the given point.
     member this.Contains (point : Point) =
         point.X >= this.Min.X && point.X <= this.Max.X &&
         point.Y >= this.Min.Y && point.Y <= this.Max.Y

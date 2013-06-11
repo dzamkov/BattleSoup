@@ -61,6 +61,22 @@ type Texture (id : int) =
 [<AutoOpen>]
 module Render =
 
+    /// Defines rendering-oriented functions for Transform.
+    type Transform with
+
+        /// Gets an OpenTK 4x4 matrix representation of this transform.
+        member this.ToGLMatrix =
+            let a = this.X.X
+            let b = this.X.Y
+            let c = this.Y.X
+            let d = this.Y.Y
+            let e = this.Offset.X
+            let f = this.Offset.Y
+            Matrix4d (a,    b,    0.0,  0.0, 
+                      c,    d,    0.0,  0.0, 
+                      0.0,  0.0,  1.0,  0.0, 
+                      e,    f,    0.0,  1.0)
+
     /// Defines useful extension functions for the GL class.
     type GL with
         static member Vertex2 (point : Point) =
@@ -80,22 +96,17 @@ module Render =
             GL.BindTexture (TextureTarget.Texture2D, texture.ID)
 
         static member MultMatrix (transform : Transform) =
-            let a = transform.X.X
-            let b = transform.X.Y
-            let c = transform.Y.X
-            let d = transform.Y.Y
-            let e = transform.Offset.X
-            let f = transform.Offset.Y
-            let mutable mat = Matrix4d (a, b, 0.0, 0.0, c, d, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, e, f, 0.0, 1.0)
+            let mutable mat = transform.ToGLMatrix
             GL.MultMatrix &mat
+
+        static member LoadMatrix (transform : Transform) =
+            let mutable mat = transform.ToGLMatrix
+            GL.LoadMatrix &mat
 
 open Render
 
 /// A renderable fragment from a texture which includes positioning and sizing information.
-type Sprite (texture : Texture, source : global.Rectangle, destination : global.Rectangle) =
-    
-    /// Gets the texture for this sprite.
-    member this.Texture = texture
+type Sprite (source : global.Rectangle, destination : global.Rectangle) =
 
     /// Gets the source quadrilateral for this sprite in the texture space.
     member this.Source = source

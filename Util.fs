@@ -24,3 +24,6 @@ let (|?|) a b =
     match a with
     | Some x -> Some x
     | None -> b
+
+/// A random source.
+let random = System.Random ()
