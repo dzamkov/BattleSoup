@@ -47,8 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Util.fs" />
+    <Compile Include="Signal.fs" />
     <Compile Include="Geometry.fs" />
-    <Compile Include="Drawing.fs" />
+    <Compile Include="Draw.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="Sprite.fs" />
     <Compile Include="Visual.fs" />

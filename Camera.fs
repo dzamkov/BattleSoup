@@ -1,7 +1,4 @@
-﻿module BattleSoup.Camera
-
-open BattleSoup.Util
-open BattleSoup.Geometry
+﻿namespace global
 
 /// A persistent movable view.
 type Camera (center : Point, velocity : Vector, zoom : float, zoomVelocity : float) =
@@ -44,7 +41,7 @@ type Camera (center : Point, velocity : Vector, zoom : float, zoomVelocity : flo
         Transform (center, Vector (extent, 0.0), Vector (0.0, extent))
 
     /// Updates the state of the camera by the given time.
-    member this.Update (time : TimeDelta) =
+    member this.Update (time : Time) =
         let extent = this.Extent
         center <- center + velocity * (extent * time)
         velocity <- velocity * (damping ** time)

@@ -1,12 +1,6 @@
-﻿module BattleSoup.Element
+﻿namespace global
 
 open System.Drawing
-open BattleSoup.Util
-open BattleSoup.Geometry
-open BattleSoup.Drawing
-open BattleSoup.Sprite
-open BattleSoup.Visual
-open BattleSoup.Atom
 
 /// The radius of an element atom.
 let radius = 0.5

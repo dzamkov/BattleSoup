@@ -1,5 +1,3 @@
-﻿module BattleSoup.Program
-
-open BattleSoup.Window
+﻿module Program
 
 (new Window ()).Run ()

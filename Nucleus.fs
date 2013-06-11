@@ -1,12 +1,6 @@
-﻿module BattleSoup.Nucleus
+﻿namespace global
 
 open System.Drawing
-open BattleSoup.Util
-open BattleSoup.Geometry
-open BattleSoup.Drawing
-open BattleSoup.Sprite
-open BattleSoup.Visual
-open BattleSoup.Atom
 
 /// The border width of a nucleus atom.
 let borderWidth = 1.0

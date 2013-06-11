@@ -1,4 +1,4 @@
-﻿module BattleSoup.Window
+﻿namespace global
 
 open OpenTK
 open OpenTK.Graphics
@@ -6,15 +6,7 @@ open OpenTK.Graphics.OpenGL
 open System
 open System.Collections.Generic
 open System.Drawing
-open BattleSoup.Geometry
-open BattleSoup.Camera
-open BattleSoup.Drawing
-open BattleSoup.Render
-open BattleSoup.Visual
-open BattleSoup.Atom
-open BattleSoup.Element
-open BattleSoup.Nucleus
-
+type Point = global.Point
 
 /// Main program window.
 type Window () =
@@ -24,7 +16,7 @@ type Window () =
     let visuals = Dictionary<Atom, Visual> ()
 
     /// Gets the current transform from viewspace to worldspace coordinates for this window.
-    member this.ViewTransform = normalizeView (float this.Width / float this.Height) camera.Transform
+    member this.ViewTransform = camera.Transform.Normalize (float this.Width / float this.Height)
 
     /// Gets the worldspace point at the given window coordinates.
     member this.Project (x : int, y : int) =

@@ -1,4 +1,4 @@
-﻿module BattleSoup.Geometry
+﻿namespace global
 
 open System
 open System.Collections.Generic
@@ -73,15 +73,15 @@ type [<Struct>] Transform (offset : Point, x : Vector, y : Vector) =
     static member (*) (a : Transform, b : Point) = a.Apply b
 
     /// Creates a rotation transform for a certain angle in radians.
-    static member Rotate (angle : double) =
+    static member Rotate (angle : float) =
         Transform (Point (0.0, 0.0), Vector (cos angle, sin angle), Vector (-(sin angle), cos angle))
 
     /// Creates a scale transform with independant scale factors for each axis.
-    static member Scale (horizontal : double, vertical : double) =
+    static member Scale (horizontal : float, vertical : float) =
         Transform (Point (0.0, 0.0), Vector (horizontal, 0.0), Vector (0.0, vertical))
 
     /// Creates a scale transform with the given scale factor.
-    static member Scale (amount : double) =
+    static member Scale (amount : float) =
         Transform (Point (0.0, 0.0), Vector (amount, 0.0), Vector (0.0, amount))
 
     /// Creates a tranlation transform with the given offset.
@@ -113,3 +113,9 @@ type [<Struct>] Transform (offset : Point, x : Vector, y : Vector) =
             Point ((y.Y * offset.X - y.X * offset.Y) * -idet, (x.Y * offset.X - x.X * offset.Y) * idet),
             Vector (y.Y * idet, x.Y * -idet),
             Vector (y.X * -idet, x.X * idet))
+
+    /// Normalizes this given transform so that there is no stretching or skewing when applied 
+    /// as a projection transform to a viewport of the given aspect ratio.
+    member this.Normalize (aspectRatio : float) =
+        if aspectRatio < 1.0 then Transform.Scale (aspectRatio, 1.0) * this
+        else Transform.Scale (1.0, 1.0 / aspectRatio) * this

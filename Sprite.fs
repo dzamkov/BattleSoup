@@ -1,4 +1,4 @@
-﻿module BattleSoup.Sprite
+﻿namespace global
 
 open OpenTK
 open OpenTK.Graphics
@@ -7,36 +7,6 @@ open System
 open System.Collections.Generic
 open System.Drawing
 open System.Drawing.Drawing2D
-open BattleSoup.Geometry
-open BattleSoup.Drawing
-open BattleSoup.Render
-
-/// A renderable fragment from a texture with included positioning and sizing information.
-type Sprite (texture : Texture, source : Rectangle, destination : Rectangle) =
-    
-    /// Gets the texture for this sprite.
-    member this.Texture = texture
-
-    /// Gets the source quadrilateral for this sprite in the texture space.
-    member this.Source = source
-
-    /// Gets the destination quadrilateral for this sprite in view space.
-    member this.Destination = destination
-
-    /// Draws this sprite with the given paint and transform.
-    member this.Draw (paint : Paint, transform : Transform) =
-        GL.Color4 paint
-        GL.BindTexture2D texture
-        GL.Begin BeginMode.Quads
-        GL.TexCoord2 (source.Min.X, source.Min.Y)
-        GL.Vertex2 (transform * Point (destination.Min.X, destination.Max.Y))
-        GL.TexCoord2 (source.Min.X, source.Max.Y)
-        GL.Vertex2 (transform * Point (destination.Min.X, destination.Min.Y))
-        GL.TexCoord2 (source.Max.X, source.Max.Y)
-        GL.Vertex2 (transform * Point (destination.Max.X, destination.Min.Y))
-        GL.TexCoord2 (source.Max.X, source.Min.Y)
-        GL.Vertex2 (transform * Point (destination.Max.X, destination.Max.Y))
-        GL.End ()
 
 /// A method of creating a specific sprite that does not directly reference a texture.
 type [<ReferenceEquality>] SpriteSource =

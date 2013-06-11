@@ -1,12 +1,11 @@
-﻿module BattleSoup.Render
+﻿namespace global
 
-open System.Drawing
+type Bitmap = System.Drawing.Bitmap
 open System.Drawing.Imaging
 open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
-open BattleSoup.Geometry
-open BattleSoup.Drawing
+
 
 /// An interface to a OpenGL texture.
 type Texture (id : int) =
@@ -58,36 +57,71 @@ type Texture (id : int) =
     /// Deletes this texture.
     member this.Delete () = GL.DeleteTexture id
 
-/// Defines useful extension functions for the GL class.
-type GL with
-    static member Vertex2 (point : Point) =
-        GL.Vertex2 (point.X, point.Y)
+/// Contains extensions and functions related to rendering.
+[<AutoOpen>]
+module Render =
 
-    static member TexCoord2 (point : Point) =
-        GL.TexCoord2 (point.X, point.Y)
+    /// Defines useful extension functions for the GL class.
+    type GL with
+        static member Vertex2 (point : Point) =
+            GL.Vertex2 (point.X, point.Y)
 
-    static member Color3 (color : Color) =
-        GL.Color3 (color.R, color.G, color.B)
+        static member TexCoord2 (point : Point) =
+            GL.TexCoord2 (point.X, point.Y)
 
-    static member Color4 (paint : Paint) =
-        let color = paint.Color
-        GL.Color4 (paint.Alpha, color.R, color.G, color.B)
+        static member Color3 (color : Color) =
+            GL.Color3 (color.R, color.G, color.B)
 
-    static member BindTexture2D (texture : Texture) =
-        GL.BindTexture (TextureTarget.Texture2D, texture.ID)
+        static member Color4 (paint : Paint) =
+            let color = paint.Color
+            GL.Color4 (paint.Alpha, color.R, color.G, color.B)
 
-    static member MultMatrix (transform : Transform) =
-        let a = transform.X.X
-        let b = transform.X.Y
-        let c = transform.Y.X
-        let d = transform.Y.Y
-        let e = transform.Offset.X
-        let f = transform.Offset.Y
-        let mutable mat = Matrix4d (a, b, 0.0, 0.0, c, d, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, e, f, 0.0, 1.0)
-        GL.MultMatrix &mat
+        static member BindTexture2D (texture : Texture) =
+            GL.BindTexture (TextureTarget.Texture2D, texture.ID)
 
-/// Normalizes the given view transform so that there is no stretching or skewing when applied to a
-/// viewport of the given aspect ratio.
-let normalizeView aspectRatio (view : Transform) =
-    if aspectRatio < 1.0 then Transform.Scale (aspectRatio, 1.0) * view
-    else Transform.Scale (1.0, 1.0 / aspectRatio) * view
+        static member MultMatrix (transform : Transform) =
+            let a = transform.X.X
+            let b = transform.X.Y
+            let c = transform.Y.X
+            let d = transform.Y.Y
+            let e = transform.Offset.X
+            let f = transform.Offset.Y
+            let mutable mat = Matrix4d (a, b, 0.0, 0.0, c, d, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, e, f, 0.0, 1.0)
+            GL.MultMatrix &mat
+
+open Render
+
+/// A renderable fragment from a texture which includes positioning and sizing information.
+type Sprite (texture : Texture, source : global.Rectangle, destination : global.Rectangle) =
+    
+    /// Gets the texture for this sprite.
+    member this.Texture = texture
+
+    /// Gets the source quadrilateral for this sprite in the texture space.
+    member this.Source = source
+
+    /// Gets the destination quadrilateral for this sprite in view space.
+    member this.Destination = destination
+
+    /// Outputs the geometry information (as Quads) for this sprite.
+    member this.Output () =
+        GL.TexCoord2 (source.Min.X, source.Min.Y)
+        GL.Vertex2 (destination.Min.X, destination.Max.Y)
+        GL.TexCoord2 (source.Min.X, source.Max.Y)
+        GL.Vertex2 (destination.Min.X, destination.Min.Y)
+        GL.TexCoord2 (source.Max.X, source.Max.Y)
+        GL.Vertex2 (destination.Max.X, destination.Min.Y)
+        GL.TexCoord2 (source.Max.X, source.Min.Y)
+        GL.Vertex2 (destination.Max.X, destination.Max.Y)
+
+    /// Outputs the geometry information (as Quads) for this sprite, applying the given
+    /// transform to the vertex data.
+    member this.Output (transform : Transform) =
+        GL.TexCoord2 (source.Min.X, source.Min.Y)
+        GL.Vertex2 (transform * Point (destination.Min.X, destination.Max.Y))
+        GL.TexCoord2 (source.Min.X, source.Max.Y)
+        GL.Vertex2 (transform * Point (destination.Min.X, destination.Min.Y))
+        GL.TexCoord2 (source.Max.X, source.Max.Y)
+        GL.Vertex2 (transform * Point (destination.Max.X, destination.Min.Y))
+        GL.TexCoord2 (source.Max.X, source.Min.Y)
+        GL.Vertex2 (transform * Point (destination.Max.X, destination.Max.Y))

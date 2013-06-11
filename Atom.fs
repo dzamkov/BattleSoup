@@ -1,10 +1,7 @@
-﻿module BattleSoup.Atom
+﻿namespace global
 
 open System
 open System.Collections.Generic
-open BattleSoup.Util
-open BattleSoup.Geometry
-open BattleSoup.Visual
 
 /// Defines the immutable behavior of a certain type of atom.
 type [<AbstractClass>] AtomType (radius : float, mass : float, borderWidth : float) =
