@@ -37,7 +37,7 @@ type Window () =
         Visual.drawing draw (Rectangle (-0.6, -0.6, 0.6, 0.6)) 1024
 
     /// Gets the current transform from viewspace to worldspace for this window.
-    member this.Transform = camera.Transform * Transform2.normalization (float this.Width / float this.Height)
+    member this.Transform = camera.Transform * Transform2.normalize (float this.Width / float this.Height)
 
     /// Gets the worldspace point at the given window coordinates.
     member this.Project (x : int, y : int) =

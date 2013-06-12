@@ -38,7 +38,7 @@ type Camera (center : Vector2, velocity : Vector2, zoom : Scalar, zoomVelocity :
     /// Gets the viewspace to worldspace transform for the current state of the camera.
     member this.Transform =
         let extent = this.Extent
-        Transform2.translation center * Transform2.dilation extent
+        Transform2.translate center * Transform2.dilate extent
 
     /// Updates the state of the camera by the given time.
     member this.Update (time : Time) =

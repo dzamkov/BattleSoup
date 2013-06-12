@@ -18,6 +18,11 @@ type [<AbstractClass; AllowNullLiteral>] VectorSpace<'t> () =
     /// must be commutative.
     abstract Add : 't -> 't -> 't
 
+    /// Adds a vector with a scaled form of another vector.
+    abstract AddScaled : 't -> Scalar -> 't -> 't
+    default this.AddScaled a scalar b =
+        this.Add a (this.Scale scalar b)
+
     /// Multiplies two vectors in this vector space. Multiplication is
     /// non-commutative and must distribute over addition.
     abstract Multiply : 't -> 't -> 't
@@ -29,10 +34,11 @@ type [<AbstractClass; AllowNullLiteral>] VectorSpace<'t> () =
 
 /// A number that can multiply vectors.
 and Scalar = float
-do VectorSpace<Scalar>.Default <- 
+VectorSpace<Scalar>.Default <- 
     { new VectorSpace<Scalar> () with
         override this.Scale a b = a * b
         override this.Add a b = a + b
+        override this.AddScaled a s b = a + s * b
         override this.Multiply a b = a * b
         override this.Zero = 0.0 }
 
@@ -75,6 +81,7 @@ module Vector2 =
         { new VectorSpace<Vector2> () with
             override this.Scale a b = a * b
             override this.Add a b = a + b
+            override this.AddScaled a s b = a + s * b
             override this.Multiply a b = zero
             override this.Zero = zero }
 
@@ -86,7 +93,7 @@ module Vector2 =
 
 /// Constructs a two-component vector.
 let vec2 x y = Vector2 (x, y)
-do VectorSpace<Vector2>.Default <- Vector2.space
+VectorSpace<Vector2>.Default <- Vector2.space
 
 
 /// A 2x2 matrix.
@@ -131,6 +138,7 @@ module Matrix2 =
         { new VectorSpace<Matrix2> () with
             override this.Scale a b = a * b
             override this.Add a b = a + b
+            override this.AddScaled a s b = a + s * b
             override this.Multiply a b = a * b
             override this.Zero = zero }
 
@@ -146,7 +154,7 @@ module Matrix2 =
 
 /// Constructs a 2x2 matrix by its column vectors.
 let mat2 x y = Matrix2 (x, y)
-do VectorSpace<Matrix2>.Default <- Matrix2.space
+VectorSpace<Matrix2>.Default <- Matrix2.space
 
 
 /// An affine transform for two-component vectors.
@@ -187,6 +195,7 @@ module Transform2 =
         { new VectorSpace<Transform2> () with
             override this.Scale a b = a * b
             override this.Add a b = a + b
+            override this.AddScaled a s b = a + s * b
             override this.Multiply a b = a * b
             override this.Zero = zero }
 
@@ -200,21 +209,21 @@ module Transform2 =
     let scale x y = Transform2 (mat2 (Vector2.x * x) (Vector2.y * y), Vector2.zero)
 
     /// Constructs a transform that dilates by the given scalar.
-    let dilation (amount : Scalar) = Transform2 (Matrix2.identity * amount, Vector2.zero)
+    let dilate (amount : Scalar) = Transform2 (Matrix2.identity * amount, Vector2.zero)
 
     /// Constructs a transform that translates by the given vector.
-    let translation offset = Transform2 (Matrix2.identity, offset)
+    let translate offset = Transform2 (Matrix2.identity, offset)
 
     /// Constructs a transform that normalizes a projection from a viewport
     /// of a given aspect ratio so that there is no stretching or skewing.
-    let normalization (aspectRatio : float) =
+    let normalize (aspectRatio : float) =
         if aspectRatio < 1.0 then scale aspectRatio 1.0
         else scale 1.0 (1.0 / aspectRatio)
 
 /// Constructs a two-transform by its linear transform and its
 /// offset.
 let trans2 linear offset = Transform2 (linear, offset)
-do VectorSpace<Transform2>.Default <- Transform2.space
+VectorSpace<Transform2>.Default <- Transform2.space
 
 
 /// A variable-degree polynomial of vectors.
@@ -229,7 +238,7 @@ type [<Struct>] Poly<'t> =
                 let mutable current = coeffs.[0]
                 let mutable scalar = param
                 for i = 1 to coeffs.Length - 1 do
-                    current <- space.Add current (space.Scale scalar coeffs.[i])
+                    current <- space.AddScaled current scalar coeffs.[i]
                     scalar <- scalar * param
                 current
             elif coeffs.Length = 1 then coeffs.[0]
@@ -362,9 +371,18 @@ module Poly =
             Poly<'t> nCoeffs
         else Poly<'t> [| c |]
 
+    /// Creates a polynomial which linearly interpolates between the given
+    /// values with parameters from 0 to 1.
+    let lerp a b =
+        let space = VectorSpace<'t>.Default
+        Poly<'t> [| a; space.AddScaled b -1.0 a |]
+
+    /// Creates a polynomial with a constant value.
+    let ``const`` a = Poly<'t> [| a |]
+
 /// Constructs a polynomial from the given coefficients.
 let poly coeffs = Poly<'t> coeffs
-do VectorSpace<PolyScalar>.Default <- Poly.Space<Scalar> VectorSpace<Scalar>.Default
-do VectorSpace<PolyVector2>.Default <- Poly.Space<Vector2> Vector2.space
-do VectorSpace<PolyMatrix2>.Default <- Poly.Space<Matrix2> Matrix2.space
-do VectorSpace<PolyTransform2>.Default <- Poly.Space<Transform2> Transform2.space
+VectorSpace<PolyScalar>.Default <- Poly.Space<Scalar> VectorSpace<Scalar>.Default
+VectorSpace<PolyVector2>.Default <- Poly.Space<Vector2> Vector2.space
+VectorSpace<PolyMatrix2>.Default <- Poly.Space<Matrix2> Matrix2.space
+VectorSpace<PolyTransform2>.Default <- Poly.Space<Transform2> Transform2.space
