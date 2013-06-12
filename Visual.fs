@@ -13,7 +13,7 @@ type [<AbstractClass>] Visual () =
     /// The projection transform (from worldspace to viewspace) is given as
     /// an argument. The second parameter can be used to defer to another
     /// visual for future rendering.
-    abstract Render : Transform * Visual byref -> unit
+    abstract Render : Transform2 * Visual byref -> unit
 
 /// Contains functions and types related to visual effects.
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -46,7 +46,7 @@ module Visual =
         member this.Over = over
 
     /// A visual that appears as a transformed form of the given visual.
-    and Transform (transform : global.Transform signal, inner : Visual) =
+    and Transform (transform : Transform2 signal, inner : Visual) =
         inherit Visual ()
         let mutable inner = inner
         override x.Render (trans, this) =

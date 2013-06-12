@@ -61,15 +61,15 @@ type Texture (id : int) =
 [<AutoOpen>]
 module Render =
 
-    /// Defines rendering-oriented functions for Transform.
-    type Transform with
+    /// Defines rendering-oriented functions for Transform2.
+    type Transform2 with
 
         /// Gets an OpenTK 4x4 matrix representation of this transform.
         member this.ToGLMatrix =
-            let a = this.X.X
-            let b = this.X.Y
-            let c = this.Y.X
-            let d = this.Y.Y
+            let a = this.Linear.X.X
+            let b = this.Linear.X.Y
+            let c = this.Linear.Y.X
+            let d = this.Linear.Y.Y
             let e = this.Offset.X
             let f = this.Offset.Y
             Matrix4d (a,    b,    0.0,  0.0, 
@@ -79,10 +79,10 @@ module Render =
 
     /// Defines useful extension functions for the GL class.
     type GL with
-        static member Vertex2 (point : Point) =
+        static member Vertex2 (point : Math.Vector2) =
             GL.Vertex2 (point.X, point.Y)
 
-        static member TexCoord2 (point : Point) =
+        static member TexCoord2 (point : Math.Vector2) =
             GL.TexCoord2 (point.X, point.Y)
 
         static member Color3 (color : Color) =
@@ -95,11 +95,11 @@ module Render =
         static member BindTexture2D (texture : Texture) =
             GL.BindTexture (TextureTarget.Texture2D, texture.ID)
 
-        static member MultMatrix (transform : Transform) =
+        static member MultMatrix (transform : Transform2) =
             let mutable mat = transform.ToGLMatrix
             GL.MultMatrix &mat
 
-        static member LoadMatrix (transform : Transform) =
+        static member LoadMatrix (transform : Transform2) =
             let mutable mat = transform.ToGLMatrix
             GL.LoadMatrix &mat
 
@@ -127,12 +127,12 @@ type Sprite (source : global.Rectangle, destination : global.Rectangle) =
 
     /// Outputs the geometry information (as Quads) for this sprite, applying the given
     /// transform to the vertex data.
-    member this.Output (transform : Transform) =
+    member this.Output (transform : Transform2) =
         GL.TexCoord2 (source.Min.X, source.Min.Y)
-        GL.Vertex2 (transform * Point (destination.Min.X, destination.Max.Y))
+        GL.Vertex2 (transform * vec2 destination.Min.X destination.Max.Y)
         GL.TexCoord2 (source.Min.X, source.Max.Y)
-        GL.Vertex2 (transform * Point (destination.Min.X, destination.Min.Y))
+        GL.Vertex2 (transform * vec2 destination.Min.X destination.Min.Y)
         GL.TexCoord2 (source.Max.X, source.Max.Y)
-        GL.Vertex2 (transform * Point (destination.Max.X, destination.Min.Y))
+        GL.Vertex2 (transform * vec2 destination.Max.X destination.Min.Y)
         GL.TexCoord2 (source.Max.X, source.Min.Y)
-        GL.Vertex2 (transform * Point (destination.Max.X, destination.Max.Y))
+        GL.Vertex2 (transform * vec2 destination.Max.X destination.Max.Y)

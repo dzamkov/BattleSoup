@@ -1,7 +1,7 @@
 ﻿namespace global
 
 /// A persistent movable view.
-type Camera (center : Point, velocity : Vector, zoom : float, zoomVelocity : float) =
+type Camera (center : Vector2, velocity : Vector2, zoom : Scalar, zoomVelocity : Scalar) =
     let mutable center = center
     let mutable velocity = velocity
     let mutable zoom = zoom
@@ -9,7 +9,7 @@ type Camera (center : Point, velocity : Vector, zoom : float, zoomVelocity : flo
     let damping = 0.01
     let zoomDamping = 0.01
     let lateralMovement = 0.7
-    new (center, zoom) = Camera (center, Vector (0.0, 0.0), zoom, 0.0)
+    new (center, zoom) = Camera (center, Vector2.zero, zoom, 0.0)
 
     /// Gets or sets the position of the center of the camera's view.
     member this.Center
@@ -35,10 +35,10 @@ type Camera (center : Point, velocity : Vector, zoom : float, zoomVelocity : flo
     /// camera's view to any of the edges.
     member this.Extent = 2.0 ** -zoom
 
-    /// Gets the view transform for the current state of the camera.
+    /// Gets the viewspace to worldspace transform for the current state of the camera.
     member this.Transform =
         let extent = this.Extent
-        Transform (center, Vector (extent, 0.0), Vector (0.0, extent))
+        Transform2.translation center * Transform2.dilation extent
 
     /// Updates the state of the camera by the given time.
     member this.Update (time : Time) =
@@ -50,7 +50,7 @@ type Camera (center : Point, velocity : Vector, zoom : float, zoomVelocity : flo
 
     /// Changes the velocity and zoom velocity of the camera to zoom in or out of the given target
     /// point.
-    member this.ZoomTo (amount : float, target : Point) =
+    member this.ZoomTo (amount : Scalar, target : Vector2) =
         let extent = this.Extent
         let dif = target - center
         zoomVelocity <- zoomVelocity + amount

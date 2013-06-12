@@ -13,6 +13,12 @@ let (<>*) a b = not (obj.ReferenceEquals (a, b))
 /// Determines whether an object is null.
 let isNull x = obj.ReferenceEquals (x, null)
 
+/// Determines whether an object is an instance of the given type.
+let isInstanceOf<'t> (x : obj) =
+    match x with
+    | :? 't -> true
+    | _ -> false
+
 /// The option-coalescing operator.
 let (|?) a b =
     match a with
